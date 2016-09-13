@@ -6,6 +6,8 @@ var express = require( 'express' )
   , conn = mongoskin.db( 'mongodb://localhost:27017/opoderdanutricao', { native_parser: true } );
   ;
 
+console.log( process.env );
+
 // Configuration
 app.use( express.static( 'public' ) );
 app.use( bodyParser.json() );
