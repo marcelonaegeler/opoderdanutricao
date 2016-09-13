@@ -1,0 +1,28 @@
+{
+  "name": "opoderdanutricao",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "express-mailer": "^0.3.1",
+    "mongodb": "^2.2.9",
+    "mongoskin": "^2.1.0",
+    "pug": "^2.0.0-beta6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcelonaegeler/opoderdanutricao.git"
+  },
+  "author": "Marcelo A Naegeler",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marcelonaegeler/opoderdanutricao/issues"
+  },
+  "homepage": "https://github.com/marcelonaegeler/opoderdanutricao#readme"
+}

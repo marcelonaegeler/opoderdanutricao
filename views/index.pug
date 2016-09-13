@@ -1,0 +1,12 @@
+extends base/base
+
+block body
+  div
+    form( action="/insterested", method="post" )
+      label Nome:
+        input( name="name" )
+
+      label E-mail:
+        input( name="email" )
+
+      div: button( type="submit" ) Enviar
