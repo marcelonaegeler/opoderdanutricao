@@ -1,12 +1,11 @@
 var express = require( 'express' )
   , app = express()
   , bodyParser = require( 'body-parser' )
+  , session = require( 'express-session' )
   , mailer = require( 'express-mailer' )
-  , mongoskin = require( 'mongoskin' )
-  , conn = mongoskin.db( 'mongodb://localhost:27017/opoderdanutricao', { native_parser: true } );
+  , mail_config = require( './config/mail' ) // File on .gitignore (sensitive data)
+  , Clients = require( './models/Clients' )
   ;
-
-console.log( process.env );
 
 // Configuration
 app.use( express.static( 'public' ) );
@@ -14,41 +13,62 @@ app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded( { extended: true } ) );
 app.set( 'view engine', 'pug' );
 
+app.locals.title = 'O poder da Nutrição';
+
+// Session
+app.use( session( {
+  secret: 'there\'s a secret'
+  , resave: true
+  , saveUninitialized: true
+  , cookie: { secure: false }
+}));
+
+
 // Mailer
 mailer.extend( app, {
-  from: 'no-reply@opoderdanutricao.com.br',
-  host: 'smtp.gmail.com', // hostname
-  secureConnection: true, // use SSL
-  port: 465, // port for secure SMTP
-  transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts
-  auth: {
-    user: 'no-reply@opoderdanutricao.com.br',
-    pass: ''
+  from: mail_config.email
+  , host: 'smtp.gmail.com'
+  , port: 465
+  , secureConnection: true
+  , transportMethod: 'SMTP'
+  , auth: {
+    user: mail_config.email
+    , pass: mail_config.password
   }
 });
 
 // Routes
 app.get( '/', function ( req, res ) {
-  res.render( 'index', { title: 'O poder da nutrição' } );
+  return res.render( 'index' );
+});
+app.get( '/sucesso', function ( req, res ) {
+  return res.render( 'thank-you', req.session.client );
 });
 
 app.post( '/insterested', function ( req, res ) {
-  console.log( req.body );
+  Clients.add( req.body, function ( registered ) {
+    req.session.client = registered;
+    return res.redirect( '/sucesso' );
 
-  app.mailer.send( 'emails/registered', {
-    to: req.body.email
-    , name: req.body.name
-    , subject: 'Test Email'
-  }, function ( err ) {
-    if ( err ) {
-      console.log(err);
-      res.send( 'There was an error sending the email' );
-      return;
-    }
-    res.send( 'Email Sent' );
+    return;
+    if ( !registered ) { return false; }
+
+    app.mailer.send(
+      'emails/registered'
+      , {
+        to: req.body.email
+        , name: req.body.name
+        , subject: 'Muito obrigado!'
+      }
+      , function ( err ) {
+        if ( err ) {
+          req.flash( 'error', 'Houve um erro ao enviar o e-mail!' );
+          return res.redirect( '/' );
+        }
+        return res.redirect( '/sucesso' );
+      }
+    );
   });
-
-  // res.redirect( '/' );
 });
 
 // Listen to

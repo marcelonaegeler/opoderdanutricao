@@ -1,5 +1,5 @@
 var data = {
-  mail: 'test@example.com'
+  email: 'test@example.com'
   , password: 'somepass'
 };
 module.exports = data;
