@@ -26,8 +26,8 @@ app.use( session( {
 
 // Mailer
 mailer.extend( app, {
-  from: mail_config.email
-  , host: 'smtp.gmail.com'
+  from: [ mail_config.name, ' <', mail_config.email, '>' ].join( '' )
+  , host: 'smtp.zoho.com'
   , port: 465
   , secureConnection: true
   , transportMethod: 'SMTP'
@@ -39,19 +39,23 @@ mailer.extend( app, {
 
 // Routes
 app.get( '/', function ( req, res ) {
-  return res.render( 'index' );
+  var data = {};
+  if ( req.session.error ) {
+    data.error = req.session.error;
+    delete req.session.error;
+  }
+  return res.render( 'index', data );
 });
 app.get( '/sucesso', function ( req, res ) {
   return res.render( 'thank-you', req.session.client );
 });
 
 app.post( '/insterested', function ( req, res ) {
-  Clients.add( req.body, function ( registered ) {
+  Clients.add( req.body, function ( registered, isNew ) {
     req.session.client = registered;
-    return res.redirect( '/sucesso' );
-
-    return;
-    if ( !registered ) { return false; }
+    // return res.redirect( '/sucesso' );
+    // return;
+    if ( !isNew ) { return res.redirect( '/sucesso' ); }
 
     app.mailer.send(
       'emails/registered'
@@ -62,7 +66,7 @@ app.post( '/insterested', function ( req, res ) {
       }
       , function ( err ) {
         if ( err ) {
-          req.flash( 'error', 'Houve um erro ao enviar o e-mail!' );
+          req.session.error = 'Houve um erro ao enviar o e-mail!';
           return res.redirect( '/' );
         }
         return res.redirect( '/sucesso' );

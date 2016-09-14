@@ -3,10 +3,12 @@ var Clients = ( function () {
 
   var add = function ( data, callback ) {
     db.collection( 'clients' ).findOne( { email: data.email }, function ( err, res ) {
+      var isNew = false;
       if ( !res ) {
         db.collection( 'clients' ).insert( data );
+        isNew = true;
       }
-      callback( data );
+      callback( data, isNew );
     });
 
   };
